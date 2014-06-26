@@ -16,7 +16,7 @@ This implementation is based on Anand Shankar Krishnamoorthi's:  <br/>
 * Implementing a default handler
 * Developing template code upon visitor
 
-This implementation uses C++11 and replaced the "Loki" TypeList by C++11 variadic templates.
+This implementation uses C++11 and replaced the "Loki" TypeList by C++11 variadic templates.  <br\>
 No virtual methods are needed for the visitation (dispatching is performed via a custom virtual table (more information in the link above)).  <br/>
 Some efforts have been made to simplify the Visitor utilisation via some macro helpers.
 
