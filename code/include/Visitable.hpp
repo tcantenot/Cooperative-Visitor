@@ -30,13 +30,28 @@ struct Visitable
         std::size_t getTagHelper(VisitableImpl const *) const;
 };
 
-///! Macro helper defining a virtual function in every Visitable class
-/// to return its tag
-#define META_Visitable(VisitorImpl) \
-    virtual std::size_t tag() const \
+/// \brief Macro helper defining a virtual function in every Visitable class
+/// to return its invocation info.
+/// This function allows to fallback falling through the type hierarchy
+/// (recursively) to find the nearest base class conversion.
+/// \param VisitableImpl     Type of the visitable class.
+/// \param VisitableFallback Ancestor visitable class to use as fallback.
+#define META_Visitable(VisitableImpl, VisitableFallback) \
+    virtual visitor_details::InvocationInfo visitable_invocation_info( \
+        std::vector<bool> const & statusTable \
+    ) \
     { \
-        return this->getTagHelper<VisitorImpl>(this); \
+        std::size_t tag = this->getTagHelper(this); \
+        if(tag < statusTable.size() && statusTable[tag]) \
+        { \
+            return visitor_details::InvocationInfo(tag, this); \
+        } \
+        return VisitableFallback::visitable_invocation_info(statusTable); \
     }
+
+/// \brief Macro helper for the base class of a visitable hierarchy
+#define META_BaseVisitable(VisitableImpl) \
+    META_Visitable(VisitableImpl, VisitableImpl)
 
 #include "Visitable.inl"
 

@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <vector>
 
-namespace details {
+namespace visitor_details {
 
 /////////////////////////////// TAG GOUNTER ////////////////////////////////////
 
@@ -71,22 +71,30 @@ class VisitorVTable
                 Func defaultFunc =
                     (baseTag >= m_table.size()) ? nullptr : m_table[baseTag];
 
-                // Expand the table
+                // Expand the table and fill the holes with the default handler
                 m_table.resize(index + 1, defaultFunc);
+                m_status.resize(index + 1, false);
             }
 
             m_table[index] = f;
+            m_status[index] = true;
         }
 
-        Func operator[](std::size_t index ) const
+        Func operator[](std::size_t index) const
         {
             if(index >= m_table.size()) index = GetVisitableTag<Base, Base>();
 
             return m_table[index];
         }
 
+        std::vector<bool> const & getStatusTable() const
+        {
+            return m_status;
+        }
+
     private:
-        std::vector<Func> m_table; ///< Functions table
+        std::vector<Func> m_table;  ///< Functions table
+        std::vector<bool> m_status; ///< Used slots of the functions table
 };
 
 
@@ -176,7 +184,27 @@ template <typename Visitor, typename Invoker, typename ...VisitedList>
 VisitorVTableCreator<Visitor, Invoker, VisitedList...> const
 GetVisitorVTable<Visitor, Invoker, VisitedList...>::s_table;
 
-} // details
+
+//////////////////////////// INVOCATION INFO ///////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+/// \brief Structure used by the visitor to get the entire information for
+/// making the call - the index to the function and the visitable.
+/// Allow fallback to base classes.
+////////////////////////////////////////////////////////////////////////////////
+struct InvocationInfo
+{
+    std::size_t vtableIndex; ///< Index of the function in the vtable
+    void * visitable;        ///< Pointer to the visitable
+
+    InvocationInfo(std::size_t index, void * v):
+        vtableIndex(index), visitable(v)
+    {
+
+    }
+};
+
+} // visitor_details
 
 
 #endif //VISITOR_DETAILS_HPP

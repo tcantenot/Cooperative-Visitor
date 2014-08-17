@@ -60,7 +60,7 @@ class Visitor
     public:
         using BaseType   = Base;
         using Thunk      = ReturnType (Visitor::*)(Base &);
-        using VTableType = details::VisitorVTable<Base const, Thunk>;
+        using VTableType = visitor_details::VisitorVTable<Base const, Thunk>;
         using RType      = ReturnType;
 
     private:
@@ -78,7 +78,11 @@ class Visitor
 //! Must be called in each visitor constructor to build the virtual table of the visitor.
 /// The parameters are the class with are visitable by this visitor.
 #define META_Visitables(...) \
-    VisitorVTableSetter<visitor_details::VisitorType, visitor_details::InvokerType, __VA_ARGS__>::SetVTable(*this);
+    VisitorVTableSetter< \
+        visitor_details::VisitorType, \
+        visitor_details::InvokerType, \
+        __VA_ARGS__ \
+    >::SetVTable(*this);
 
 #include "Visitor.inl"
 

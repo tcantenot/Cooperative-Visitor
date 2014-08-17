@@ -3,7 +3,7 @@
 
 #include <Visitor.hpp>
 
-namespace details {
+namespace visitor_details {
 
 template <typename Visitable, typename Base>
 struct GetVisitMethodArgumentType
@@ -18,14 +18,16 @@ struct GetVisitMethodArgumentType<Visitable, Base const>
     using Type = Visitable const; // ReturnType visit(Visitable const &)
 };
 
-} // details
+} // visitor_details
 
 
 template <typename Base, typename ReturnType>
 inline ReturnType Visitor<Base, ReturnType>::operator()(Base & b)
 {
-    Thunk thunk = (*m_vtable)[b.tag()]; // Fetch thunk
-    return (this->*thunk)(b); // Pointer to member function syntax
+    // Retrieve the invocation info of the Visitable
+    auto info = b.visitable_invocation_info(m_vtable->getStatusTable());
+    Thunk thunk = (*m_vtable)[info.vtableIndex]; // Fetch thunk
+    return (this->*thunk)(*static_cast<Base *>(info.visitable)); // Pointer to member function syntax
 }
 
 template <typename Base, typename ReturnType>
@@ -33,7 +35,7 @@ template <typename VisitorImpl, typename Visitable, typename Invoker>
 inline ReturnType Visitor<Base, ReturnType>::thunk(Base & b)
 {
     using VisitableType =
-        typename details::GetVisitMethodArgumentType<Visitable, Base>::Type;
+        typename visitor_details::GetVisitMethodArgumentType<Visitable, Base>::Type;
 
     VisitorImpl & visitor = static_cast<VisitorImpl&>(*this);
 
@@ -43,7 +45,7 @@ inline ReturnType Visitor<Base, ReturnType>::thunk(Base & b)
 }
 
 
-/// Details ///
+/// visitor_details ///
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief Class used to initialize a visitor vtable.
@@ -55,7 +57,7 @@ struct VisitorVTableSetter
     {
         // Instantiate the static vtable and set the vtable pointer
         visitor.m_vtable =
-            details::GetVisitorVTable<Visitor, Invoker, VisitedList...>();
+            visitor_details::GetVisitorVTable<Visitor, Invoker, VisitedList...>();
     }
 };
 

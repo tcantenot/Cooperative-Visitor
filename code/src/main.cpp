@@ -7,19 +7,31 @@
 class Shape : public Visitable<Shape>
 {
     public:
-        META_Visitable(Shape)
+        META_BaseVisitable(Shape)
 };
 
 class Circle : public Shape
 {
     public:
-        META_Visitable(Circle)
+        META_Visitable(Circle, Shape)
 };
 
 class Polygon : public Shape
 {
     public:
-        META_Visitable(Polygon)
+        META_Visitable(Polygon, Shape)
+};
+
+class PolyPolygon : public Polygon
+{
+    public:
+        META_Visitable(PolyPolygon, Polygon)
+};
+
+class PolyPolyPolygon : public PolyPolygon
+{
+    public:
+        META_Visitable(PolyPolyPolygon, PolyPolygon)
 };
 
 
@@ -57,19 +69,19 @@ class ShapeVisitor : public Visitor<Shape, bool>
 class Node : public Visitable<Node>
 {
     public:
-        META_Visitable(Node)
+        META_BaseVisitable(Node)
 };
 
 class Group : public Node
 {
     public:
-        META_Visitable(Group)
+        META_Visitable(Group, Node)
 };
 
 class List : public Group
 {
     public:
-        META_Visitable(List)
+        META_Visitable(List, Group)
 };
 
 
@@ -150,6 +162,8 @@ int main(int argc, char const ** argv)
     Shape shape;
     Circle circle;
     Polygon polygon;
+    PolyPolygon pp;
+    PolyPolyPolygon ppp;
 
     ShapeVisitor sv;
 
@@ -157,6 +171,8 @@ int main(int argc, char const ** argv)
     b = sv(shape);  assert(!b);
     b = sv(circle);  assert(b);
     b = sv(polygon); assert(b);
+    b = sv(pp);      assert(b);
+    b = sv(ppp);     assert(b);
 
     std::cout << std::endl;
 
