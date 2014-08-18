@@ -1,7 +1,7 @@
 #ifndef VISITOR_INL
 #define VISITOR_INL
 
-#include <Visitor.hpp>
+#include "Visitor.hpp"
 
 namespace visitor_details {
 
@@ -72,7 +72,7 @@ struct VisitorVTableSetter
 //! Internal macro used to configure a Visitor with visit methods with
 /// the custom name <VisitInvoker>
 #define META_VisitorWithCustomInvoker(VisitorImpl, VisitInvoker) \
-class visitor_details_ \
+struct visitor_invoker_details \
 { \
     using VisitorType = VisitorImpl; \
     using InvokerType = \

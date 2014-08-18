@@ -1,7 +1,7 @@
 #ifndef VISITOR_HPP
 #define VISITOR_HPP
 
-#include <VisitorDetails.hpp>
+#include "VisitorDetails.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief Visitor base class used by the Visitor Pattern.
@@ -91,8 +91,8 @@ class Visitor
 /// The parameters are the class with are visitable by this visitor.
 #define META_Visitables(...) \
     VisitorVTableSetter< \
-        visitor_details_::VisitorType, \
-        visitor_details_::InvokerType, \
+        visitor_invoker_details::VisitorType, \
+        visitor_invoker_details::InvokerType, \
         __VA_ARGS__ \
     >::SetVTable(*this)
 

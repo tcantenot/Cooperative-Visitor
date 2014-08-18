@@ -1,7 +1,7 @@
 #ifndef VISITABLE_HPP
 #define VISITABLE_HPP
 
-#include <VisitorDetails.hpp>
+#include "VisitorDetails.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \brief Visitable based class used by the Visitor Pattern.
