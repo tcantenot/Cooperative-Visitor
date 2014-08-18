@@ -94,7 +94,7 @@ class Visitor
         visitor_details_::VisitorType, \
         visitor_details_::InvokerType, \
         __VA_ARGS__ \
-    >::SetVTable(*this);
+    >::SetVTable(*this)
 
 
 #include "Visitor.inl"

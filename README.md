@@ -64,7 +64,7 @@ class PolyPolyPolygon : public PolyPolygon
 class ShapeVisitor : public Visitor<Shape, bool, float, std::string const &>
 {
     public:
-        META_Visitor(ShapeVisitor, draw);
+        META_Visitor(ShapeVisitor, draw)
 
         ShapeVisitor()
         {

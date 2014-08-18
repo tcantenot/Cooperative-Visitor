@@ -38,7 +38,7 @@ class PolyPolyPolygon : public PolyPolygon
 class ShapeVisitor : public Visitor<Shape, bool>
 {
     public:
-        META_Visitor(ShapeVisitor, draw);
+        META_Visitor(ShapeVisitor, draw)
 
         ShapeVisitor()
         {
@@ -116,7 +116,7 @@ class NodeVisitor : public Visitor<Node, int>
 class OtherNodeVisitor : public NodeVisitor
 {
     public:
-        META_Visitor(OtherNodeVisitor);
+        META_Visitor(OtherNodeVisitor)
 
         OtherNodeVisitor()
         {
@@ -143,7 +143,7 @@ class OtherNodeVisitor : public NodeVisitor
 class VoidVisitor : public Visitor<Node>
 {
     public:
-        META_Visitor(VoidVisitor, Void);
+        META_Visitor(VoidVisitor, Void)
 
         VoidVisitor()
         {
@@ -161,7 +161,7 @@ class VoidVisitor : public Visitor<Node>
 class VariadicVisitor : public Visitor<Node, int, int, std::string const &>
 {
     public:
-        META_Visitor(VariadicVisitor, call);
+        META_Visitor(VariadicVisitor, call)
 
         VariadicVisitor()
         {
