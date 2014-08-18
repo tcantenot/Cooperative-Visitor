@@ -12,13 +12,13 @@
 ///     class Shape : public Visitable<Shape>
 ///     {
 ///         public:
-///             META_Visitable(Shape)
+///             META_BaseVisitable(Shape)
 ///     };
 ///
 ///     class Circle : public Shape
 ///     {
 ///         public:
-///             META_Visitable(Circle)
+///             META_Visitable(Circle, Shape)
 ///     };
 /// \endcode
 ////////////////////////////////////////////////////////////////////////////////
@@ -49,9 +49,11 @@ struct Visitable
         return VisitableFallback::visitable_invocation_info(statusTable); \
     }
 
+
 /// \brief Macro helper for the base class of a visitable hierarchy
 #define META_BaseVisitable(VisitableImpl) \
     META_Visitable(VisitableImpl, VisitableImpl)
+
 
 #include "Visitable.inl"
 

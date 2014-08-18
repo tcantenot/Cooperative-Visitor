@@ -157,6 +157,33 @@ class VoidVisitor : public Visitor<Node>
         }
 };
 
+
+class VariadicVisitor : public Visitor<Node, int, int, std::string const &>
+{
+    public:
+        META_Visitor(VariadicVisitor, call);
+
+        VariadicVisitor()
+        {
+            META_Visitables(Node, Group);
+        }
+
+    private:
+        int call(Node & node, int i, std::string const & s)
+        {
+            std::cout << "VariadicVisitor::call(Node = " << &node << ", " << i
+                      << ", " << s << ")" << std::endl;
+            return i + 1;
+        }
+
+        int call(Group & group, int i, std::string const & s)
+        {
+            std::cout << "VariadicVisitor::call(Group = " << &group << ", " << i
+                      << ", " << s << ")" << std::endl;
+            return i + 2;
+        }
+};
+
 int main(int argc, char const ** argv)
 {
     Shape shape;
@@ -211,6 +238,13 @@ int main(int argc, char const ** argv)
     vv(node);
     vv(group);
     vv(list);
+
+    std::cout << std::endl;
+
+    VariadicVisitor varv;
+    i = varv(node, 1, "node");   assert(i == 2);
+    i = varv(group, 2, "group"); assert(i == 4);
+    i = varv(list, 3, "list");  assert(i == 5);
 
     return 0;
 }

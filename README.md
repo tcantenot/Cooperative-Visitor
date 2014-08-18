@@ -16,94 +16,95 @@ This implementation is based on Anand Shankar Krishnamoorthi's:  <br/>
 * Implementing a default handler
 * Developing template code upon visitor
 * Fallback to nearest ancestor
+* Custom signature for 'visit' methods
 
 This implementation uses C++11 and replaced the "Loki" TypeList by C++11 variadic templates.  <br\>
 Only one virtual method is needed for the visitation (dispatching is performed via a custom virtual table (more information in the link above)).  <br/>
 Some efforts have been made to simplify the Visitor utilisation via some macro helpers.
 
 Example:
-<!-- language: cpp -->
-    #include <cassert>
+```cpp
+#include <cassert>
 
-    #include <Visitor.hpp>
-    #include <Visitable.hpp>
-
-
-    class Shape : public Visitable<Shape>
-    {
-        public:
-            META_BaseVisitable(Shape)
-    };
-
-    class Circle : public Shape
-    {
-        public:
-            META_Visitable(Circle, Shape)
-    };
-
-    class Polygon : public Shape
-    {
-        public:
-            META_Visitable(Polygon, Shape)
-    };
-
-    class PolyPolygon : public Polygon
-    {
-        public:
-            META_Visitable(PolyPolygon, Polygon)
-    };
-
-    class PolyPolyPolygon : public PolyPolygon
-    {
-        public:
-            META_Visitable(PolyPolyPolygon, PolyPolygon)
-    };
+#include <Visitor.hpp>
+#include <Visitable.hpp>
 
 
-    class ShapeVisitor : public Visitor<Shape, bool>
-    {
-        public:
-            META_Visitor(ShapeVisitor, draw);
+class Shape : public Visitable<Shape>
+{
+    public:
+        META_BaseVisitable(Shape)
+};
 
-            ShapeVisitor()
-            {
-                META_Visitables(Shape, Circle, Polygon);
-            }
+class Circle : public Shape
+{
+    public:
+        META_Visitable(Circle, Shape)
+};
 
-        protected:
-            bool draw(Shape & shape)
-            {
-                return false;
-            }
+class Polygon : public Shape
+{
+    public:
+        META_Visitable(Polygon, Shape)
+};
 
-            bool draw(Circle & circle)
-            {
-                return true;
-            }
+class PolyPolygon : public Polygon
+{
+    public:
+        META_Visitable(PolyPolygon, Polygon)
+};
 
-            bool draw(Polygon & polygon)
-            {
-                return true;
-            }
-    };
+class PolyPolyPolygon : public PolyPolygon
+{
+    public:
+        META_Visitable(PolyPolyPolygon, PolyPolygon)
+};
 
-    int main(int argc, char const ** argv)
-    {
-        Shape shape;
-        Circle circle;
-        Polygon polygon;
-        PolyPolygon pp;
-        PolyPolyPolygon ppp;
 
-        ShapeVisitor sv;
+class ShapeVisitor : public Visitor<Shape, bool, float, std::string const &>
+{
+    public:
+        META_Visitor(ShapeVisitor, draw);
 
-        bool b;
-        b = sv(shape);   assert(!b);
-        b = sv(circle);  assert(b);
-        b = sv(polygon); assert(b);
-        b = sv(pp);  assert(b); // Fallback to ShapeVisitor::draw(Polygon &)
-        b = sv(ppp); assert(b); // Fallback to ShapeVisitor::draw(Polygon &)
+        ShapeVisitor()
+        {
+            META_Visitables(Shape, Circle, Polygon);
+        }
 
-        return 0;
-    }
+    protected:
+        bool draw(Shape & shape, float, std::string const &)
+        {
+            return false;
+        }
 
+        bool draw(Circle & circle, float, std::string const &)
+        {
+            return true;
+        }
+
+        bool draw(Polygon & polygon, float, std::string const &)
+        {
+            return true;
+        }
+};
+
+int main(int argc, char const ** argv)
+{
+    Shape shape;
+    Circle circle;
+    Polygon polygon;
+    PolyPolygon pp;
+    PolyPolyPolygon ppp;
+
+    ShapeVisitor sv;
+
+    bool b;
+    b = sv(shape, 1.0f, "shape");     assert(!b);
+    b = sv(circle, 2.0f, "circle");   assert(b);
+    b = sv(polygon, 3.0f, "polygon"); assert(b);
+    b = sv(pp, 4.0f, "pp");   assert(b); // Fallback to ShapeVisitor::draw(Polygon &, ...)
+    b = sv(ppp, 5.0f, "ppp"); assert(b); // Fallback to ShapeVisitor::draw(Polygon &, ...)
+
+    return 0;
+}
+```

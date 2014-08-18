@@ -21,18 +21,22 @@ struct GetVisitMethodArgumentType<Visitable, Base const>
 } // visitor_details
 
 
-template <typename Base, typename ReturnType>
-inline ReturnType Visitor<Base, ReturnType>::operator()(Base & b)
+template <typename Base, typename ReturnType, typename ...Args>
+inline ReturnType Visitor<Base, ReturnType, Args...>::operator()(Base & b, Args && ...args)
 {
     // Retrieve the invocation info of the Visitable
     auto info = b.visitable_invocation_info(m_vtable->getStatusTable());
-    Thunk thunk = (*m_vtable)[info.vtableIndex]; // Fetch thunk
-    return (this->*thunk)(*static_cast<Base *>(info.visitable)); // Pointer to member function syntax
+
+    // Fetch thunk
+    Thunk thunk = (*m_vtable)[info.vtableIndex];
+
+    // Pointer to member function syntax
+    return (this->*thunk)(*static_cast<Base *>(info.visitable), std::forward<Args>(args)...);
 }
 
-template <typename Base, typename ReturnType>
+template <typename Base, typename ReturnType, typename ...Args>
 template <typename VisitorImpl, typename Visitable, typename Invoker>
-inline ReturnType Visitor<Base, ReturnType>::thunk(Base & b)
+inline ReturnType Visitor<Base, ReturnType, Args...>::thunk(Base & b, Args && ...args)
 {
     using VisitableType =
         typename visitor_details::GetVisitMethodArgumentType<Visitable, Base>::Type;
@@ -41,7 +45,7 @@ inline ReturnType Visitor<Base, ReturnType>::thunk(Base & b)
 
     VisitableType & visitable = static_cast<VisitableType &>(b);
 
-    return Invoker::Invoke(visitor, visitable);
+    return Invoker::Invoke(visitor, visitable, std::forward<Args>(args)...);
 }
 
 
@@ -68,18 +72,18 @@ struct VisitorVTableSetter
 //! Internal macro used to configure a Visitor with visit methods with
 /// the custom name <VisitInvoker>
 #define META_VisitorWithCustomInvoker(VisitorImpl, VisitInvoker) \
-class visitor_details \
+class visitor_details_ \
 { \
     using VisitorType = VisitorImpl; \
     using InvokerType = \
     struct  \
     { \
-        template <typename VisitorImpl, typename VisitableImpl> \
+        template <typename VisitorImpl, typename VisitableImpl, typename ...Args> \
         static typename VisitorImpl::RType Invoke( \
-            VisitorImpl & visitor, VisitableImpl & visitable \
+            VisitorImpl & visitor, VisitableImpl & visitable, Args && ...args \
         ) \
         { \
-            return visitor.VisitInvoker(visitable); \
+            return visitor.VisitInvoker(visitable, std::forward<Args>(args)...); \
         } \
     }; \
 }; \
