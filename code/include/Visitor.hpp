@@ -72,7 +72,7 @@ class Visitor
 
     private:
         template <typename VisitorImpl, typename Invoker, typename ...VisitedList>
-        friend class VisitorVTableSetter;
+        friend struct VisitorVTableSetter;
 
         VTableType const * m_vtable; ///< Vtable pointer
 };
@@ -84,8 +84,7 @@ class Visitor
 ///  META_Visitor(NodeVisitor) // Default invoker 'visit'
 ///  META_Visitor(UpdateVisitor, update) // Custom invoker 'update'
 #define META_Visitor(/*Visitor [, VisitInvoker]*/...) \
-    SWITCH_2(__VA_ARGS__, META_VisitorWithCustomInvoker, META_DefaultVisitor)(__VA_ARGS__)
-
+    _SELECT_META_VISITOR_(__VA_ARGS__)
 
 //! Must be called in each visitor constructor to build the virtual table of the visitor.
 /// The parameters are the class with are visitable by this visitor.
